@@ -1,5 +1,6 @@
-# This is a genetic algorithm to find the best solution to
-# find the highest point of f(x) = x^2, 0 <= x <= 31
+# This is a genetic algorithm to find the best solution of
+# the equation f(x) = x^2, 0 <= x <= 31
+# In that case, the highest point
 
 from random import randint
 
