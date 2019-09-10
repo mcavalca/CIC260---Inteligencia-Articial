@@ -1,13 +1,12 @@
-# This is a genetic algorithm to find the best solution of
-# the equation f(x) = x^2, 0 <= x <= 31
-# In that case, the highest point
+# This is a genetic algorithm to find the best solution to
+# find the highest point of f(x) = x^2, 0 <= x <= 31
 
 from random import randint
 
 # Environment variables - Delimiters
 size = 4 # Total individuals on each generation
 mutation_odds = 1 # Odds to mutate
-generations = 100 # Total generations
+generations = 5 # Total generations
 
 perfection = 31 # In our case all 5 bits equal to '1', or integer 31
 answer = False
@@ -18,25 +17,35 @@ def fitness (individual):
     return int(individual, 2)
 
 # Pick the parents
-# Function will receive : current population, a list containing odds of each individual
-# and an integer that has the total fitness of the population
+# Function will receive : current population, a list containing the fitness sum
+# of each individual and the total fitness of the population
 #
-# It will pick a random int between 0 and total_fitness (cumulative_odds)
-# and get
-def parents (population, individual_odds, cumulative_odds):
-    temp_odds = cumulative_odds
-    temp_indiv_odds = individual_odds
+# It will pick a random int between 0 and total_fitness (indiv_odds)
+# and find the first individual
+# Then decrease the first individual fitness from the total fitness and
+# from all individuals after that one, including itself
+# This will turn the fitness of that individual into 0 and keep the fitness
+# of the next individuals, making it impossible for the first individual to
+# reproduce with itself
+def parents (population, indiv_odds, temp_odds):
+    temp_indiv_odds = indiv_odds[:]
 
     pick = randint(0, temp_odds - 1)
-    index = temp_indiv_odds[pick]
-    first = population[index]
+    for index in range(size + 1):
+        if pick < temp_indiv_odds[index]:
+            break
+    first = population[index - 1]
 
-    temp_odds -= temp_indiv_odds.count(index)
-    temp_indiv_odds = [x for x in temp_indiv_odds if x != index]
+    pos = index
+    for index in range(pos, size + 1):
+        temp_indiv_odds[index] -= fitness(first)
+    temp_odds -= fitness(first)
 
     pick = randint(0, temp_odds - 1)
-    index = temp_indiv_odds[pick]
-    second = population[index]
+    for index in range(size + 1):
+        if pick < temp_indiv_odds[index]:
+            break
+    second = population[index - 1]
 
     return first, second
 
@@ -69,18 +78,19 @@ for current_gen in range(generations):
     # We need to calculate the total fitness to do elitism
     # The 'best' individuals will reproduce
     # Total fitness will sum the fitness of each individual
-    # individual_odds will create a list that contains (fitness * n of each individual),
-    # n being the index of the current individual
+    # individual_odds will create a list that contains the sum of the current individual
+    # and all the previous ones.
     #
     # If the best individual is found within the current generation,
     # the script will end
     #
-    individual_odds = []
+    individual_odds = [0]
+    total_fitness = 0
     for n, individual in enumerate(population):
-        individual_odds.extend(n for i in range (0, fitness(individual)))
+        total_fitness += fitness(individual)
+        individual_odds.append(total_fitness)
         if (fitness(individual) == perfection):
             answer = True
-    total_fitness = len(individual_odds)
 
     if (answer):
         print('Individual found!')
