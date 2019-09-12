@@ -3,7 +3,7 @@
 
 from random import randint
 
-# Environment variables - Delimiters
+# Environment variables
 size = 4 # Total individuals on each generation
 mutation_odds = 1 # Odds to mutate
 generations = 5 # Total generations
